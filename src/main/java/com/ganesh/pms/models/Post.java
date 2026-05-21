@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +22,7 @@ public class Post {
     private Long id;
     private String title;
     private String description;
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @ManyToOne
