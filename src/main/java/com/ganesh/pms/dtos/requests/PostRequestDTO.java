@@ -10,7 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostRequestDTO {
+public class
+PostRequestDTO {
     @NotBlank(message = "Title is required")
     private String title;
     @NotBlank(message = "Description is required")

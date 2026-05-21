@@ -50,4 +50,10 @@ public class AuthController {
                 .build();
         return new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
     }
+
+    @PostMapping("/admincreation")
+    public ResponseEntity<UserResponseDTO> adminCreation(@RequestBody @Valid SignupDTO signupDTO) {
+        UserResponseDTO userResponseDTO = authService.adminCreation(signupDTO);
+        return new ResponseEntity<>(userResponseDTO, HttpStatus.CREATED);
+    }
 }

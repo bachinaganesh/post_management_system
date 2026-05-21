@@ -7,4 +7,5 @@ import com.ganesh.pms.models.User;
 public interface IAuthService {
     UserResponseDTO signUp(SignupDTO signupDTO);
     User getUserByEmail(String email);
+    UserResponseDTO adminCreation(SignupDTO signupDTO);
 }

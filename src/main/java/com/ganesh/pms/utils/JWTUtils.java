@@ -25,7 +25,7 @@ public class JWTUtils {
                 .claim("roles", user.getRoles())
                 .signWith(getJwtSecretKey())
                 .setIssuedAt(new java.util.Date())
-                .setExpiration(new java.util.Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .setExpiration(new java.util.Date(System.currentTimeMillis() + 1000 * 60))
                 .compact();
     }
 
