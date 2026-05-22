@@ -11,4 +11,5 @@ public interface IAuthService {
     UserResponseDTO adminCreation(SignupDTO signupDTO);
     LoginResponseDTO refreshToken(String refreshToken);
     String logout(User user);
+    LoginResponseDTO refresh(String refreshToken);
 }

@@ -15,6 +15,7 @@ import com.ganesh.pms.service.ISessionService;
 import com.ganesh.pms.utils.JWTUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +40,8 @@ public class AuthServiceImpl implements IAuthService {
         User user = this.modelMapper.map(signupDTO, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-//        set the subscription as "FREE" for every user when they sign up
-        user.setSubscriptionPlans(SubscriptionPlans.FREE);
+//        set the role as "USER"
+        user.getRoles().add(Role.USER);
 
 //        set the free subscription plan for every user
         user.setSubscriptionPlans(SubscriptionPlans.FREE);
@@ -85,6 +86,29 @@ public class AuthServiceImpl implements IAuthService {
     public String logout(User user) {
         sessionService.deleteAllSessions(user.getId());
         return "All sessions have been deleted of user: " + user.getEmail();
+    }
+
+    @Override
+    public LoginResponseDTO refresh(String refreshToken) {
+        /**
+         * Delete all the sessions that existed for the user and generate a new access token and refresh token and create a new session in database with the new refresh token
+         */
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        sessionService.deleteAllSessions(user.getId());
+        String newAccessToken = jwtUtils.generateAccessToken(user);
+        String newRefreshToken = jwtUtils.generateRefreshToken(user);
+
+        Session session = Session.builder()
+                .user(user)
+                .refreshToken(newRefreshToken)
+                .build();
+        sessionService.saveSession(session);
+
+        return LoginResponseDTO.builder()
+                .refreshToken(newRefreshToken)
+                .jwtToken(newAccessToken)
+                .id(user.getId())
+                .build();
     }
 
 
