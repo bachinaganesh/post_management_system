@@ -39,6 +39,9 @@ public class AuthServiceImpl implements IAuthService {
         User user = this.modelMapper.map(signupDTO, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
+//        set the subscription as "FREE" for every user when they sign up
+        user.setSubscriptionPlans(SubscriptionPlans.FREE);
+
 //        set the free subscription plan for every user
         user.setSubscriptionPlans(SubscriptionPlans.FREE);
 
