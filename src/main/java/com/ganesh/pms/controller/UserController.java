@@ -4,6 +4,7 @@ import com.ganesh.pms.dtos.responses.UserResponseDTO;
 import com.ganesh.pms.exceptions.RoleAlreadyAssignedException;
 import com.ganesh.pms.models.User;
 import com.ganesh.pms.models.enums.Role;
+import com.ganesh.pms.models.enums.SubscriptionPlans;
 import com.ganesh.pms.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,13 @@ public class UserController {
         }
         user.getRoles().add(role);
         UserResponseDTO userResponseDTO = this.userService.saveUser(user);
+        return new ResponseEntity<>(userResponseDTO, HttpStatus.OK);
+    }
+
+    @PatchMapping("/addSubscription")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<UserResponseDTO> addSubscription(@RequestParam SubscriptionPlans subscription) {
+        UserResponseDTO userResponseDTO = this.userService.addSubscription(subscription);
         return new ResponseEntity<>(userResponseDTO, HttpStatus.OK);
     }
 

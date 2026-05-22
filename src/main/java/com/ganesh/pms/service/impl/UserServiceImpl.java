@@ -3,10 +3,12 @@ package com.ganesh.pms.service.impl;
 import com.ganesh.pms.dtos.responses.UserResponseDTO;
 import com.ganesh.pms.exceptions.ResourceNotFoundException;
 import com.ganesh.pms.models.User;
+import com.ganesh.pms.models.enums.SubscriptionPlans;
 import com.ganesh.pms.repository.UserRepository;
 import com.ganesh.pms.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,6 +33,15 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
 
     @Override
     public UserResponseDTO saveUser(User user) {
+        User savedUser = this.userRepository.save(user);
+        return this.modelMapper.map(savedUser, UserResponseDTO.class);
+    }
+
+    @Override
+    public UserResponseDTO addSubscription(SubscriptionPlans subscription) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        assert user != null;
+        user.setSubscriptionPlans(subscription);
         User savedUser = this.userRepository.save(user);
         return this.modelMapper.map(savedUser, UserResponseDTO.class);
     }

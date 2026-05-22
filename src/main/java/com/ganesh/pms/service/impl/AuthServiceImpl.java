@@ -7,6 +7,7 @@ import com.ganesh.pms.exceptions.ResourceAlreadyExistedException;
 import com.ganesh.pms.exceptions.ResourceNotFoundException;
 import com.ganesh.pms.models.User;
 import com.ganesh.pms.models.enums.Role;
+import com.ganesh.pms.models.enums.SubscriptionPlans;
 import com.ganesh.pms.repository.UserRepository;
 import com.ganesh.pms.service.IAuthService;
 import com.ganesh.pms.utils.JWTUtils;
@@ -34,6 +35,10 @@ public class AuthServiceImpl implements IAuthService {
         }
         User user = this.modelMapper.map(signupDTO, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+//        set the free subscription plan for every user
+        user.setSubscriptionPlans(SubscriptionPlans.FREE);
+
         User createdUser = this.userRepository.save(user);
         return this.modelMapper.map(createdUser, UserResponseDTO.class);
     }

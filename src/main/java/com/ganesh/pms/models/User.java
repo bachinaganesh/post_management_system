@@ -1,6 +1,7 @@
 package com.ganesh.pms.models;
 
 import com.ganesh.pms.models.enums.Role;
+import com.ganesh.pms.models.enums.SubscriptionPlans;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,6 +38,12 @@ public class User implements UserDetails {
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Post> posts;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Session> sessions;
+
+    @Enumerated(EnumType.STRING)
+    private SubscriptionPlans subscriptionPlans;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
