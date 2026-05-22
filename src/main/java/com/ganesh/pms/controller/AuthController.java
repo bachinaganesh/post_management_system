@@ -87,6 +87,7 @@ public class AuthController {
 
     @PostMapping("/refreshtoken")
     public ResponseEntity<LoginResponseDTO> refreshToken(@RequestParam String refreshToken) {
+//        if refresh token is valid then it will generate the access token for further auth instead of login again`
         LoginResponseDTO loginResponseDTO = authService.refreshToken(refreshToken);
         return new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
     }
@@ -97,6 +98,12 @@ public class AuthController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String response = authService.logout(user);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponseDTO> refresh(@RequestParam String refreshToken) {
+        LoginResponseDTO loginResponseDTO = authService.refresh(refreshToken);
+        return new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
     }
 
 }
