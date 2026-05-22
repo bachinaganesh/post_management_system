@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,4 +20,25 @@ public class SessionServiceImpl implements ISessionService {
     public List<Session> findSessionsByUser(User user) {
         return sessionRepository.findByUser(user);
     }
+
+    @Override
+    public void deleteSession(Session session) {
+        sessionRepository.delete(session);
+    }
+
+    @Override
+    public void saveSession(Session session) {
+        sessionRepository.save(session);
+    }
+
+    @Override
+    public void deleteAllSessions(Long userId) {
+        sessionRepository.deleteAllSessionsByUser(userId);
+    }
+
+    @Override
+    public List<Session> findSessionByUserId(Long userId) {
+        return sessionRepository.findSessionByUserId(userId);
+    }
+
 }

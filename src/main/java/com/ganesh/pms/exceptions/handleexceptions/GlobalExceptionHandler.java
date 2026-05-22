@@ -1,6 +1,7 @@
 package com.ganesh.pms.exceptions.handleexceptions;
 
 import com.ganesh.pms.dtos.responses.APIError;
+import com.ganesh.pms.exceptions.NoSessionFoundException;
 import com.ganesh.pms.exceptions.ResourceAlreadyExistedException;
 import com.ganesh.pms.exceptions.ResourceNotFoundException;
 import com.ganesh.pms.exceptions.RoleAlreadyAssignedException;
@@ -82,5 +83,16 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(NoSessionFoundException.class)
+    public ResponseEntity<APIError>  handleNoSessionFoundException(NoSessionFoundException e, HttpServletRequest request) {
+        APIError apiError = APIError.builder()
+                .message(e.getMessage())
+                .path(request.getRequestURI())
+                .status(HttpStatus.UNAUTHORIZED)
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
     }
 }

@@ -5,11 +5,13 @@ import com.ganesh.pms.dtos.responses.LoginResponseDTO;
 import com.ganesh.pms.dtos.responses.UserResponseDTO;
 import com.ganesh.pms.exceptions.ResourceAlreadyExistedException;
 import com.ganesh.pms.exceptions.ResourceNotFoundException;
+import com.ganesh.pms.models.Session;
 import com.ganesh.pms.models.User;
 import com.ganesh.pms.models.enums.Role;
 import com.ganesh.pms.models.enums.SubscriptionPlans;
 import com.ganesh.pms.repository.UserRepository;
 import com.ganesh.pms.service.IAuthService;
+import com.ganesh.pms.service.ISessionService;
 import com.ganesh.pms.utils.JWTUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,6 +28,7 @@ public class AuthServiceImpl implements IAuthService {
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtils jwtUtils;
+    private final ISessionService sessionService;
 
     @Override
     public UserResponseDTO signUp(SignupDTO signupDTO) {
@@ -57,6 +60,7 @@ public class AuthServiceImpl implements IAuthService {
         User user = this.modelMapper.map(signupDTO, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.getRoles().add(Role.ADMIN);
+        user.setSubscriptionPlans(SubscriptionPlans.PREMIUM);
         User createdUser = this.userRepository.save(user);
         return this.modelMapper.map(createdUser, UserResponseDTO.class);
     }
@@ -72,6 +76,12 @@ public class AuthServiceImpl implements IAuthService {
                 .refreshToken(refreshToken)
                 .build();
 
+    }
+
+    @Override
+    public String logout(User user) {
+        sessionService.deleteAllSessions(user.getId());
+        return "All sessions have been deleted of user: " + user.getEmail();
     }
 
 

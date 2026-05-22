@@ -9,16 +9,21 @@ import com.ganesh.pms.models.User;
 import com.ganesh.pms.service.IAuthService;
 import com.ganesh.pms.service.ISessionService;
 import com.ganesh.pms.utils.JWTUtils;
+import com.ganesh.pms.utils.SessionUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @RestController
@@ -45,11 +50,27 @@ public class AuthController {
         );
 
         User user = authService.getUserByEmail(loginDTO.getEmail());
-
+        Integer sessionLimit = SessionUtils.getSessionCount(user.getSubscriptionPlans());
         List<Session> sessions = sessionService.findSessionsByUser(user);
-        log.info("{} are found!", sessions.size());
+
+//        if sessions are exceed the limit then remove the old session
+        if(!SessionUtils.isSessionValid(sessionLimit, sessions.size())) {
+            sessions.sort(Comparator.comparing(Session::getLastUsedAt));
+            Session session = sessions.getFirst();
+            sessionService.deleteSession(session);
+        }
+
         String jwtToken = jwtUtils.generateAccessToken(user);
         String refreshToken = jwtUtils.generateRefreshToken(user);
+
+//        create a new session and save it
+        Session session = Session.builder()
+                .refreshToken(refreshToken)
+                .user(user)
+                .lastUsedAt(LocalDateTime.now())
+                .build();
+        sessionService.saveSession(session);
+
         LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder()
                 .id(user.getId())
                 .jwtToken(jwtToken)
@@ -69,4 +90,13 @@ public class AuthController {
         LoginResponseDTO loginResponseDTO = authService.refreshToken(refreshToken);
         return new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
     }
+
+    @PostMapping("/logout")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> logout() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String response = authService.logout(user);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

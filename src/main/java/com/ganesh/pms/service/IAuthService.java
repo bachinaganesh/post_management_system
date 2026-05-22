@@ -10,4 +10,5 @@ public interface IAuthService {
     User getUserByEmail(String email);
     UserResponseDTO adminCreation(SignupDTO signupDTO);
     LoginResponseDTO refreshToken(String refreshToken);
+    String logout(User user);
 }

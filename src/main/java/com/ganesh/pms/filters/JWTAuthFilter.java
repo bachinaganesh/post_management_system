@@ -1,7 +1,10 @@
 package com.ganesh.pms.filters;
 
 import com.ganesh.pms.config.securityconfig.WebSecurityConfig;
+import com.ganesh.pms.exceptions.NoSessionFoundException;
+import com.ganesh.pms.models.Session;
 import com.ganesh.pms.models.User;
+import com.ganesh.pms.service.ISessionService;
 import com.ganesh.pms.service.IUserService;
 import com.ganesh.pms.utils.JWTUtils;
 import jakarta.servlet.FilterChain;
@@ -17,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     private final JWTUtils jwtUtils;
     private final IUserService userService;
     private final HandlerExceptionResolver handlerExceptionResolver;
+    private final ISessionService sessionService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -38,7 +43,10 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
             String jwtToken = authHeader.substring(7);
             Long userId = jwtUtils.generateIdFromToken(jwtToken);
-
+            List<Session> sessions = sessionService.findSessionByUserId(userId);
+            if(sessions.isEmpty()){
+                throw new NoSessionFoundException("No session found. Please login again.");
+            }
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User user = userService.getUserById(userId);
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
